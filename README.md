@@ -40,7 +40,7 @@ The frontend runs at <http://localhost:5173>. The API health endpoint is
 
 | Area | Purpose |
 | --- | --- |
-| [Frontend](./frontend/) | React, JavaScript, Tailwind CSS, and Vite |
+| [Frontend](./frontend/) | React, TypeScript, Tailwind CSS, and Vite |
 | [Backend](./backend/) | Node.js and Fastify API |
 | [Database](./database/) | Database migrations and seed data (engine not selected) |
 | [Documentation](./docs/README.md) | Architecture, development practices, and setup |
@@ -65,7 +65,8 @@ Run from the repository root:
 | Command | Description |
 | --- | --- |
 | `npm --prefix frontend run dev` | Start the frontend development server |
-| `npm --prefix frontend run build` | Build the frontend for production |
+| `npm --prefix frontend run build` | Type-check and build the frontend for production |
+| `npm --prefix frontend run typecheck` | Run the frontend TypeScript checks |
 | `npm --prefix backend run dev` | Start the API in watch mode |
 | `npm --prefix backend test` | Run backend tests |
 

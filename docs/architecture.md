@@ -73,12 +73,13 @@ flowchart TD
 ### Frontend
 
 The frontend lives in [`frontend/`](../frontend/) and is built with React,
-JavaScript, Vite, and Tailwind CSS.
+TypeScript, Vite, and Tailwind CSS ([ADR 0003](./ADR/0003-frontend-typescript.md)).
 
 - `src/pages/` contains page-level views and the application entry page.
 - `src/components/` contains reusable UI components.
 - `src/hooks/` contains reusable React hooks.
 - `src/services/` contains API communication.
+- `src/types/` contains shared TypeScript types for API data.
 - `src/styles/` contains global styles and Tailwind entry styles.
 - `src/assets/` contains imported images, fonts, and other static assets.
 - `public/` contains static files served without importing them in JavaScript.
@@ -147,3 +148,4 @@ See the [ADR index](./ADR/) and the current decisions:
 
 - [ADR 0001: Frontend stack](./ADR/0001-frontend-stack.md)
 - [ADR 0002: Backend stack](./ADR/0002-backend-stack.md)
+- [ADR 0003: TypeScript for the frontend](./ADR/0003-frontend-typescript.md)

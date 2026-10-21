@@ -26,6 +26,7 @@ body {
   display: grid;
   min-height: 100vh;
   place-items: center;
+  gap: 24px;
   padding: 24px;
   background:
     radial-gradient(ellipse at top left, rgb(25 184 150 / 18%), transparent 40%),

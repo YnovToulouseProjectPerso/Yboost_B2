@@ -1,6 +1,10 @@
 const apiBaseUrl = import.meta.env.VITE_API_URL || '/api';
 
-export async function getApiHealth() {
+export interface ApiHealth {
+  status: string;
+}
+
+export async function getApiHealth(): Promise<ApiHealth> {
   const response = await fetch(`${apiBaseUrl}/health`);
 
   if (!response.ok) {

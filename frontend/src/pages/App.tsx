@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
-import { getApiHealth } from '../services/api.js';
+import Inventory from '../components/Inventory.tsx';
+import Notebook from '../components/Notebook.tsx';
+import { getApiHealth } from '../services/api.ts';
+import { mockInventory, mockNotebook } from '../services/mockData.ts';
 import '../styles/global.css';
 
 export default function App() {
   const [apiStatus, setApiStatus] = useState('Checking…');
+  const [selectedClueId, setSelectedClueId] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -35,6 +39,16 @@ export default function App() {
           <span>Backend API: {apiStatus}</span>
         </div>
       </section>
+
+      {/* Zone C preview (issue #41) using mock data */}
+      <div className="grid w-full max-w-5xl gap-6 md:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)]">
+        <Inventory
+          clues={mockInventory}
+          selectedClueId={selectedClueId}
+          onSelect={setSelectedClueId}
+        />
+        <Notebook entries={mockNotebook} />
+      </div>
     </main>
   );
 }
