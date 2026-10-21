@@ -1,6 +1,6 @@
 import Fastify from 'fastify';
-import corsPlugin from './plugins/cors.js';
-import healthRoutes from './routes/health.js';
+import corsPlugin from './plugins/cors.ts';
+import healthRoutes from './routes/health.ts';
 
 export function buildApp({ frontendOrigin = 'http://localhost:5173' } = {}) {
   const app = Fastify({ logger: true });

@@ -1,6 +1,6 @@
 # ADR 0002: Backend stack
 
-- **Status:** Accepted
+- **Status:** Accepted, language superseded by [ADR 0003](./0003-typescript.md)
 - **Date:** 2026-10-21
 
 ## Context

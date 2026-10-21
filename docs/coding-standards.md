@@ -26,7 +26,7 @@ Follow the existing patterns in each application and keep changes focused.
 
 ## Fastify backend
 
-- Register routes and plugins through the application in `src/app.js`.
+- Register routes and plugins through the application in `src/app.ts`.
 - Keep route handlers focused on HTTP input/output; put business rules in
   `src/services/`.
 - Validate external input and document expected response shapes with Fastify
