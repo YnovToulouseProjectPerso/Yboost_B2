@@ -1,5 +1,5 @@
-import { buildApp } from './app.js';
-import { config } from './config/env.js';
+import { buildApp } from './app.ts';
+import { config } from './config/env.ts';
 
 const app = buildApp({ frontendOrigin: config.frontendOrigin });
 

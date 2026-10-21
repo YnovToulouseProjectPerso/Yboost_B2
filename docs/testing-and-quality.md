@@ -8,7 +8,7 @@ repository root unless noted otherwise.
 GitHub Actions runs the [CI workflow](../.github/workflows/ci.yml) for pull
 requests targeting `develop` or `main` and for pushes to those branches. It
 installs each application's locked dependencies, builds the frontend, and
-runs the backend tests.
+type checks and tests the backend.
 
 The [pull request policy workflow](../.github/workflows/pull-request-policy.yml)
 checks that source and target branches follow the allowed
@@ -42,15 +42,15 @@ npm --prefix frontend run build
 
 ### Backend
 
-Run the Node.js test suite:
+Run the backend type check and tests:
 
 ```sh
+npm --prefix backend run typecheck
 npm --prefix backend test
 ```
 
-The backend tests use Node's built-in test runner and Fastify's request
-injection. The current health endpoint test is in
-[`backend/tests/health.test.js`](../backend/tests/health.test.js).
+The backend tests use Vitest and Fastify's request injection. They live in
+[`backend/tests/`](../backend/tests/).
 
 ## Expectations for changes
 
