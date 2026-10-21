@@ -7,7 +7,7 @@ repository root unless noted otherwise.
 
 GitHub Actions runs the [CI workflow](../.github/workflows/ci.yml) for pull
 requests targeting `develop` or `main` and for pushes to those branches. It
-installs each application's locked dependencies, builds the frontend, and
+installs each application's locked dependencies, tests and builds the frontend, and
 type checks and tests the backend.
 
 The [pull request policy workflow](../.github/workflows/pull-request-policy.yml)
@@ -20,7 +20,7 @@ protection is configured to require the status checks.
 flowchart TD
     PR[Pull request to develop or main] --> Branches[Validate source and target branches]
     Branches --> Commits[Validate commit messages]
-    Branches --> Frontend[Install frontend dependencies and build]
+    Branches --> Frontend[Install frontend dependencies, test, and build]
     Branches --> Backend[Install backend dependencies and run tests]
     Commits --> Result{All required checks pass?}
     Frontend --> Result
@@ -34,11 +34,16 @@ flowchart TD
 
 ### Frontend
 
-Create a production build to catch compilation and bundling errors:
+Run the frontend tests, then create a production build to catch type,
+compilation, and bundling errors:
 
 ```sh
+npm --prefix frontend test
 npm --prefix frontend run build
 ```
+
+The frontend tests use Vitest, Testing Library, and jsdom. Test files sit next
+to the component they cover (`*.test.tsx`).
 
 ### Backend
 

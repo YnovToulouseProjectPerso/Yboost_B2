@@ -17,8 +17,7 @@ flowchart LR
 The frontend and backend can run directly with Node.js or in separate Docker
 containers managed by [`docker-compose.yml`](../docker-compose.yml). In either
 mode, Vite proxies `/api` requests to Fastify. In Compose mode, the proxy
-targets the backend service by its Compose service name. The frontend health
-indicator uses `GET /api/health` to confirm that the API is reachable.
+targets the backend service by its Compose service name.
 The database connection and persistence layer have not been selected or
 implemented yet.
 
