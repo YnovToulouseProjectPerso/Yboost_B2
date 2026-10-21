@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getApiHealth } from '../services/api.js';
+import { getApiHealth } from '../services/api.ts';
 import '../styles/global.css';
 
 export default function App() {

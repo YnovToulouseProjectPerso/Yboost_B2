@@ -73,7 +73,7 @@ flowchart TD
 ### Frontend
 
 The frontend lives in [`frontend/`](../frontend/) and is built with React,
-JavaScript, Vite, and Tailwind CSS.
+TypeScript, Vite, and Tailwind CSS.
 
 - `src/pages/` contains page-level views and the application entry page.
 - `src/components/` contains reusable UI components.
@@ -81,17 +81,17 @@ JavaScript, Vite, and Tailwind CSS.
 - `src/services/` contains API communication.
 - `src/styles/` contains global styles and Tailwind entry styles.
 - `src/assets/` contains imported images, fonts, and other static assets.
-- `public/` contains static files served without importing them in JavaScript.
+- `public/` contains static files served without importing them in code.
 
 Keep API calls in services rather than embedding request details throughout
 the UI. Components should focus on rendering and user interaction.
 
 ### Backend
 
-The backend lives in [`backend/`](../backend/) and uses Node.js with Fastify.
+The backend lives in [`backend/`](../backend/) and uses Node.js with Fastify, in TypeScript.
 
-- `src/server.js` loads configuration and starts the HTTP server.
-- `src/app.js` assembles the Fastify application and registers plugins/routes.
+- `src/server.ts` loads configuration and starts the HTTP server.
+- `src/app.ts` assembles the Fastify application and registers plugins/routes.
 - `src/config/` validates and exposes runtime configuration.
 - `src/plugins/` contains reusable Fastify plugins.
 - `src/routes/` defines HTTP endpoints and delegates business work.

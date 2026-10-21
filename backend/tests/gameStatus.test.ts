@@ -1,12 +1,15 @@
+
 import { describe, it, expect } from "vitest";
 
 import {
   checkStatus,
   advanceTime,
-  DomainError,
   type GameState,
-  type GameEvent
+  type GameEvent,
+  type ActionType
 } from "../src/engine/gameStatus";
+
+import { DomainError } from "../src/services/domain-error";
 
 // Create a game state for testing
 function createState(): GameState {
@@ -17,14 +20,39 @@ function createState(): GameState {
   };
 }
 
+// Check error code and message
+function expectDomainError(
+  action: () => void,
+  code: string,
+  message: string
+): void {
+  try {
+    action();
+    throw new Error("Expected a DomainError");
+  } catch (error) {
+    expect(error).toBeInstanceOf(DomainError);
+
+    if (error instanceof DomainError) {
+      expect(error.code).toBe(code);
+      expect(error.message).toBe(message);
+    }
+  }
+}
+
 describe("checkStatus", () => {
-  it("allows actions during the game", () => {
+  const actions: ActionType[] = [
+    "move",
+    "search",
+    "interrogate",
+    "accuse"
+  ];
+
+  it("allows all actions during the game", () => {
     const state = createState();
 
-    expect(() => checkStatus(state, "move")).not.toThrow();
-    expect(() => checkStatus(state, "search")).not.toThrow();
-    expect(() => checkStatus(state, "interrogate")).not.toThrow();
-    expect(() => checkStatus(state, "accuse")).not.toThrow();
+    for (const action of actions) {
+      expect(() => checkStatus(state, action)).not.toThrow();
+    }
   });
 
   it("allows accusation at dawn", () => {
@@ -38,33 +66,38 @@ describe("checkStatus", () => {
     const state = createState();
     state.status = "dawn";
 
-    expect(() => checkStatus(state, "search")).toThrow(
-      "L'aube est levée : il ne vous reste qu'à accuser."
-    );
+    for (const action of actions.filter(a => a !== "accuse")) {
+      expectDomainError(
+        () => checkStatus(state, action),
+        "DAWN_ACCUSATION_ONLY",
+        "L'aube est levée : il ne vous reste qu'à accuser."
+      );
+    }
   });
 
-  it("blocks actions when the game is finished", () => {
+  it("blocks all actions after victory", () => {
     const state = createState();
     state.status = "victory";
 
-    expect(() => checkStatus(state, "move")).toThrow(
-      "L'enquête est terminée."
-    );
+    for (const action of actions) {
+      expectDomainError(
+        () => checkStatus(state, action),
+        "GAME_OVER",
+        "L'enquête est terminée."
+      );
+    }
   });
 
-  it("returns the correct error code", () => {
+  it("blocks all actions after defeat", () => {
     const state = createState();
     state.status = "defeat";
 
-    try {
-      checkStatus(state, "move");
-    } catch (error) {
-      expect(error).toBeInstanceOf(DomainError);
-
-      if (error instanceof DomainError) {
-        expect(error.code).toBe("GAME_OVER");
-        expect(error.statusCode).toBe(409);
-      }
+    for (const action of actions) {
+      expectDomainError(
+        () => checkStatus(state, action),
+        "GAME_OVER",
+        "L'enquête est terminée."
+      );
     }
   });
 
@@ -98,7 +131,9 @@ describe("advanceTime", () => {
 
     expect(result.state.remainingActions).toBe(0);
     expect(result.state.status).toBe("dawn");
-    expect(result.event.text).toContain("L'aube pointe");
+    expect(result.event.text).toBe(
+      "Player searches. L'aube pointe : il ne vous reste plus qu'à accuser."
+    );
   });
 
   it("does not start dawn if an accusation exists", () => {
@@ -130,9 +165,11 @@ describe("advanceTime", () => {
     const originalState = structuredClone(state);
     const originalEvent = structuredClone(event);
 
-    advanceTime(state, event);
+    const result = advanceTime(state, event);
 
     expect(state).toEqual(originalState);
     expect(event).toEqual(originalEvent);
+    expect(result.state).not.toBe(state);
+    expect(result.event).not.toBe(event);
   });
 });

@@ -35,13 +35,18 @@ npm --prefix frontend run dev
 
 The frontend runs at <http://localhost:5173>. The API health endpoint is
 <http://localhost:3000/api/health>.
+The interactive API documentation (Swagger UI) is at
+<http://localhost:3000/documentation>.
+
+Games are kept in memory by a single server process. Restarting the backend
+erases every game in progress.
 
 ## Project areas
 
 | Area | Purpose |
 | --- | --- |
-| [Frontend](./frontend/) | React, JavaScript, Tailwind CSS, and Vite |
-| [Backend](./backend/) | Node.js and Fastify API |
+| [Frontend](./frontend/) | React, TypeScript, Tailwind CSS, and Vite |
+| [Backend](./backend/) | Node.js, TypeScript, and Fastify API |
 | [Database](./database/) | Database migrations and seed data (engine not selected) |
 | [Documentation](./docs/README.md) | Architecture, development practices, and setup |
 

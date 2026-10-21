@@ -1,3 +1,6 @@
+
+import { DomainError } from "../services/domain-error";
+
 // Possible game statuses
 export type GameStatus = "in_progress" | "dawn" | "victory" | "defeat";
 
@@ -16,61 +19,46 @@ export interface GameEvent {
   text: string;
 }
 
-// Temporary error class
-// Replace it with the team's shared DomainError later
-export class DomainError extends Error {
-  constructor(
-    public code: string,
-    message: string,
-    public statusCode: number
-  ) {
-    super(message);
-    this.name = "DomainError";
-  }
-}
-
 // Check if the player can perform an action
 export function checkStatus(
   state: GameState,
   actionType: ActionType
 ): void {
-  // The game is already finished
+  // Block actions when the game is finished
   if (state.status === "victory" || state.status === "defeat") {
     throw new DomainError(
       "GAME_OVER",
-      "L'enquête est terminée.",
-      409
+      "L'enquête est terminée."
     );
   }
 
-  // At dawn, only accusation is allowed
+  // Only accusation is allowed at dawn
   if (state.status === "dawn" && actionType !== "accuse") {
     throw new DomainError(
       "DAWN_ACCUSATION_ONLY",
-      "L'aube est levée : il ne vous reste qu'à accuser.",
-      409
+      "L'aube est levée : il ne vous reste qu'à accuser."
     );
   }
 }
 
-// Decrease the number of remaining actions
+// Decrease the remaining actions
 export function advanceTime(
   state: GameState,
   event: GameEvent
 ): { state: GameState; event: GameEvent } {
-  // Stop if there are no actions left
+  // Stop when no actions remain
   if (state.remainingActions <= 0) {
     throw new Error("INV-01: No remaining actions");
   }
 
-  // Copy the objects to keep the originals unchanged
+  // Copy objects without changing the originals
   const newState = structuredClone(state);
   const newEvent = structuredClone(event);
 
   // Use one action
   newState.remainingActions -= 1;
 
-  // Start dawn when no actions remain
+  // Start dawn after the last action
   if (
     newState.remainingActions === 0 &&
     newState.accusation == null
