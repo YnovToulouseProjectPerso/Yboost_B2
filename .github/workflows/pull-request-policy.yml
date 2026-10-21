@@ -1,0 +1,94 @@
+name: Pull request policy
+
+on:
+  pull_request:
+    branches:
+      - develop
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+
+permissions:
+  contents: read
+
+jobs:
+  branch-policy:
+    name: Validate source and target branches
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enforce branch flow
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: |
+          set -euo pipefail
+
+          case "$BASE_REF:$HEAD_REF" in
+            main:develop)
+              echo "Allowed: develop -> main"
+              ;;
+            main:hotfix/*)
+              if [[ "$HEAD_REF" =~ ^hotfix/[a-z0-9][a-z0-9._-]*$ ]]; then
+                echo "Allowed: hotfix -> main"
+              else
+                echo "Invalid hotfix branch name: $HEAD_REF" >&2
+                exit 1
+              fi
+              ;;
+            develop:feat/*|develop:fix/*|develop:chore/*|develop:refactor/*|develop:refractor/*)
+              if [[ "$HEAD_REF" =~ ^(feat|fix|chore|refactor|refractor)/[a-z0-9][a-z0-9._-]*$ ]]; then
+                echo "Allowed feature branch -> develop"
+              else
+                echo "Invalid work branch name: $HEAD_REF" >&2
+                exit 1
+              fi
+              ;;
+            *)
+              echo "Pull request from '$HEAD_REF' to '$BASE_REF' is not allowed." >&2
+              echo "Use feat/, fix/, chore/, refactor/ (or refractor/) -> develop;" >&2
+              echo "develop -> main; or hotfix/ -> main." >&2
+              exit 1
+              ;;
+          esac
+
+  commit-policy:
+    name: Validate commit messages
+    runs-on: ubuntu-latest
+    needs: branch-policy
+    steps:
+      - name: Check out pull request commits
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Enforce Conventional Commit subjects
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+
+          mapfile -t subjects < <(git log --no-merges --format=%s "$BASE_SHA..HEAD")
+
+          if (( ${#subjects[@]} == 0 )); then
+            echo "No non-merge commits found in the pull request." >&2
+            exit 1
+          fi
+
+          pattern='^(feat|fix|chore|refactor|refractor|docs|test|build|ci|perf|style|revert)(\([a-z0-9][a-z0-9._/-]*\))?!?: [a-z0-9].+$'
+          failed=0
+
+          for subject in "${subjects[@]}"; do
+            if [[ ! "$subject" =~ $pattern ]] || [[ "$subject" == *. ]] || (( ${#subject} > 72 )); then
+              echo "Invalid commit subject: $subject" >&2
+              echo "Use Conventional Commits, e.g. 'feat(frontend): add dashboard' (max 72 characters, no final period)." >&2
+              failed=1
+            else
+              echo "Valid commit subject: $subject"
+            fi
+          done
+
+          exit "$failed"
