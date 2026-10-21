@@ -17,8 +17,7 @@ flowchart LR
 The frontend and backend can run directly with Node.js or in separate Docker
 containers managed by [`docker-compose.yml`](../docker-compose.yml). In either
 mode, Vite proxies `/api` requests to Fastify. In Compose mode, the proxy
-targets the backend service by its Compose service name. The frontend health
-indicator uses `GET /api/health` to confirm that the API is reachable.
+targets the backend service by its Compose service name.
 The database connection and persistence layer have not been selected or
 implemented yet.
 
@@ -73,26 +72,25 @@ flowchart TD
 ### Frontend
 
 The frontend lives in [`frontend/`](../frontend/) and is built with React,
-TypeScript, Vite, and Tailwind CSS ([ADR 0003](./ADR/0003-frontend-typescript.md)).
+TypeScript, Vite, and Tailwind CSS.
 
 - `src/pages/` contains page-level views and the application entry page.
 - `src/components/` contains reusable UI components.
 - `src/hooks/` contains reusable React hooks.
 - `src/services/` contains API communication.
-- `src/types/` contains shared TypeScript types for API data.
 - `src/styles/` contains global styles and Tailwind entry styles.
 - `src/assets/` contains imported images, fonts, and other static assets.
-- `public/` contains static files served without importing them in JavaScript.
+- `public/` contains static files served without importing them in code.
 
 Keep API calls in services rather than embedding request details throughout
 the UI. Components should focus on rendering and user interaction.
 
 ### Backend
 
-The backend lives in [`backend/`](../backend/) and uses Node.js with Fastify.
+The backend lives in [`backend/`](../backend/) and uses Node.js with Fastify, in TypeScript.
 
-- `src/server.js` loads configuration and starts the HTTP server.
-- `src/app.js` assembles the Fastify application and registers plugins/routes.
+- `src/server.ts` loads configuration and starts the HTTP server.
+- `src/app.ts` assembles the Fastify application and registers plugins/routes.
 - `src/config/` validates and exposes runtime configuration.
 - `src/plugins/` contains reusable Fastify plugins.
 - `src/routes/` defines HTTP endpoints and delegates business work.
@@ -148,4 +146,3 @@ See the [ADR index](./ADR/) and the current decisions:
 
 - [ADR 0001: Frontend stack](./ADR/0001-frontend-stack.md)
 - [ADR 0002: Backend stack](./ADR/0002-backend-stack.md)
-- [ADR 0003: TypeScript for the frontend](./ADR/0003-frontend-typescript.md)

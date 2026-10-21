@@ -35,13 +35,20 @@ npm --prefix frontend run dev
 
 The frontend runs at <http://localhost:5173>. The API health endpoint is
 <http://localhost:3000/api/health>.
+The interactive API documentation (Swagger UI) is at
+<http://localhost:3000/documentation>.
+The OpenAPI specification is available at
+<http://localhost:3000/documentation/json>.
+
+Games are kept in memory by a single server process. Restarting the backend
+erases every game in progress.
 
 ## Project areas
 
 | Area | Purpose |
 | --- | --- |
 | [Frontend](./frontend/) | React, TypeScript, Tailwind CSS, and Vite |
-| [Backend](./backend/) | Node.js and Fastify API |
+| [Backend](./backend/) | Node.js, TypeScript, and Fastify API |
 | [Database](./database/) | Database migrations and seed data (engine not selected) |
 | [Documentation](./docs/README.md) | Architecture, development practices, and setup |
 
@@ -65,9 +72,10 @@ Run from the repository root:
 | Command | Description |
 | --- | --- |
 | `npm --prefix frontend run dev` | Start the frontend development server |
-| `npm --prefix frontend run build` | Type-check and build the frontend for production |
-| `npm --prefix frontend run typecheck` | Run the frontend TypeScript checks |
+| `npm --prefix frontend run build` | Build the frontend for production |
 | `npm --prefix backend run dev` | Start the API in watch mode |
+| `npm --prefix backend run lint` | Lint backend TypeScript |
+| `npm --prefix backend run typecheck` | Type-check the backend |
 | `npm --prefix backend test` | Run backend tests |
 
 ## Contribution rules

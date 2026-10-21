@@ -4,13 +4,25 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/server.js",
-    "start": "node src/server.js",
-    "test": "node --test"
+    "dev": "node --watch src/server.ts",
+    "start": "node src/server.ts",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "typecheck": "tsc"
   },
   "dependencies": {
     "@fastify/cors": "^10.0.1",
+    "@fastify/swagger": "^9.9.2",
+    "@fastify/swagger-ui": "^6.1.2",
     "dotenv": "^16.4.7",
     "fastify": "^5.2.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^24.19.2",
+    "eslint": "^10.13.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.0",
+    "vitest": "^5.0.5"
   }
 }

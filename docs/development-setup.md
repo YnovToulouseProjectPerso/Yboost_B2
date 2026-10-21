@@ -72,6 +72,7 @@ npm --prefix frontend run dev
 
 - Frontend: <http://localhost:5173>
 - API health endpoint: <http://localhost:3000/api/health>
+- API documentation (Swagger UI): <http://localhost:3000/documentation>
 
 Vite proxies requests under `/api` to the local backend.
 

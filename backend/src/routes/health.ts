@@ -1,8 +1,12 @@
-export default async function healthRoutes(app) {
+import type { FastifyPluginAsync } from 'fastify';
+
+const healthRoutes: FastifyPluginAsync = async (app) => {
   app.get(
     '/health',
     {
       schema: {
+        tags: ['health'],
+        summary: 'Vérifier que l’API répond',
         response: {
           200: {
             type: 'object',
@@ -16,4 +20,6 @@ export default async function healthRoutes(app) {
     },
     async () => ({ status: 'ok' }),
   );
-}
+};
+
+export default healthRoutes;
