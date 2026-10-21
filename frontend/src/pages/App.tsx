@@ -1,40 +1,20 @@
-import { useEffect, useState } from 'react';
-import { getApiHealth } from '../services/api.ts';
-import '../styles/global.css';
+import { useState } from 'react';
+import EndScreen from './EndScreen.tsx';
+import GameScreen from './GameScreen.tsx';
+import HomeScreen from './HomeScreen.tsx';
+
+type Screen = 'home' | 'game' | 'end';
 
 export default function App() {
-  const [apiStatus, setApiStatus] = useState('Checking…');
-
-  useEffect(() => {
-    let isMounted = true;
-
-    getApiHealth()
-      .then((health) => {
-        if (isMounted) setApiStatus(`Connected (${health.status})`);
-      })
-      .catch(() => {
-        if (isMounted) setApiStatus('Unavailable');
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+  const [screen, setScreen] = useState<Screen>('home');
 
   return (
-    <main className="app-shell">
-      <section className="welcome-card" aria-labelledby="welcome-title">
-        <p className="eyebrow">Yboost B2</p>
-        <h1 id="welcome-title">Your project starts here.</h1>
-        <p className="intro">
-          The React frontend is ready. Build your application by adding
-          components and pages to the project structure.
-        </p>
-        <div className="api-status" role="status">
-          <span className="status-indicator" aria-hidden="true" />
-          <span>Backend API: {apiStatus}</span>
-        </div>
-      </section>
-    </main>
+    <div className="min-h-dvh p-3 sm:p-8">
+      <main className="mx-auto min-h-[calc(100dvh-1.5rem)] max-w-6xl border border-rule bg-page px-6 py-10 sm:min-h-[calc(100dvh-4rem)] sm:px-14 sm:py-14">
+        {screen === 'home' && <HomeScreen onStart={() => setScreen('game')} />}
+        {screen === 'game' && <GameScreen />}
+        {screen === 'end' && <EndScreen />}
+      </main>
+    </div>
   );
 }
