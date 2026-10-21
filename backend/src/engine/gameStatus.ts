@@ -1,0 +1,84 @@
+// Possible game statuses
+export type GameStatus = "in_progress" | "dawn" | "victory" | "defeat";
+
+// Possible player actions
+export type ActionType = "move" | "search" | "interrogate" | "accuse";
+
+// Game state
+export interface GameState {
+  status: GameStatus;
+  remainingActions: number;
+  accusation: unknown | null;
+}
+
+// Game event
+export interface GameEvent {
+  text: string;
+}
+
+// Temporary error class
+// Replace it with the team's shared DomainError later
+export class DomainError extends Error {
+  constructor(
+    public code: string,
+    message: string,
+    public statusCode: number
+  ) {
+    super(message);
+    this.name = "DomainError";
+  }
+}
+
+// Check if the player can perform an action
+export function checkStatus(
+  state: GameState,
+  actionType: ActionType
+): void {
+  // The game is already finished
+  if (state.status === "victory" || state.status === "defeat") {
+    throw new DomainError(
+      "GAME_OVER",
+      "L'enquête est terminée.",
+      409
+    );
+  }
+
+  // At dawn, only accusation is allowed
+  if (state.status === "dawn" && actionType !== "accuse") {
+    throw new DomainError(
+      "DAWN_ACCUSATION_ONLY",
+      "L'aube est levée : il ne vous reste qu'à accuser.",
+      409
+    );
+  }
+}
+
+// Decrease the number of remaining actions
+export function advanceTime(
+  state: GameState,
+  event: GameEvent
+): { state: GameState; event: GameEvent } {
+  // Stop if there are no actions left
+  if (state.remainingActions <= 0) {
+    throw new Error("INV-01: No remaining actions");
+  }
+
+  // Copy the objects to keep the originals unchanged
+  const newState = structuredClone(state);
+  const newEvent = structuredClone(event);
+
+  // Use one action
+  newState.remainingActions -= 1;
+
+  // Start dawn when no actions remain
+  if (
+    newState.remainingActions === 0 &&
+    newState.accusation == null
+  ) {
+    newState.status = "dawn";
+    newEvent.text +=
+      " L'aube pointe : il ne vous reste plus qu'à accuser.";
+  }
+
+  return { state: newState, event: newEvent };
+}
