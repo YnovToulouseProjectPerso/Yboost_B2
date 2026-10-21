@@ -49,9 +49,8 @@ npm --prefix backend run typecheck
 npm --prefix backend test
 ```
 
-The backend tests use Node's built-in test runner and Fastify's request
-injection. The current health endpoint test is in
-[`backend/tests/health.test.ts`](../backend/tests/health.test.ts).
+The backend tests use Vitest and Fastify's request injection. They live in
+[`backend/tests/`](../backend/tests/).
 
 ## Expectations for changes
 
