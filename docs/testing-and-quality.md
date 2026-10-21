@@ -42,15 +42,21 @@ npm --prefix frontend run build
 
 ### Backend
 
-Run the backend type check and tests:
+Run the backend type check, linter, and tests:
 
 ```sh
 npm --prefix backend run typecheck
+npm --prefix backend run lint
 npm --prefix backend test
 ```
 
 The backend tests use Vitest and Fastify's request injection. They live in
 [`backend/tests/`](../backend/tests/).
+
+The interactive Swagger UI is available at `/documentation`, and its OpenAPI
+document is available at `/documentation/json`. Tests in
+[`backend/tests/docs.test.ts`](../backend/tests/docs.test.ts) verify both
+endpoints.
 
 ## Expectations for changes
 
@@ -63,5 +69,5 @@ The backend tests use Vitest and Fastify's request injection. They live in
 - Include any manual verification steps that cannot be automated in the pull
   request description.
 
-Linting and formatting commands are not configured yet. Add them as
-application scripts when the project adopts the corresponding tools.
+Formatting commands are not configured yet. Add them as application scripts
+when the project adopts a formatter.
