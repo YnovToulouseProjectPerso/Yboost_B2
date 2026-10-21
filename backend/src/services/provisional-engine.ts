@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { applyAction } from './apply-action.ts';
 import type { Engine } from './game.ts';
 
 const introduction = '1h00. Un cri traverse l’auberge…';
@@ -45,7 +46,5 @@ export const provisionalEngine: Engine = {
 
   createDie: (_seed, position) => ({ die: () => 6, position: () => position }),
 
-  applyAction: () => {
-    throw new Error('The provisional engine cannot apply actions');
-  },
+  applyAction,
 };

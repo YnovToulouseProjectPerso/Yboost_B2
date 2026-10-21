@@ -37,6 +37,8 @@ The frontend runs at <http://localhost:5173>. The API health endpoint is
 <http://localhost:3000/api/health>.
 The interactive API documentation (Swagger UI) is at
 <http://localhost:3000/documentation>.
+The OpenAPI specification is available at
+<http://localhost:3000/documentation/json>.
 
 Games are kept in memory by a single server process. Restarting the backend
 erases every game in progress.
@@ -72,6 +74,8 @@ Run from the repository root:
 | `npm --prefix frontend run dev` | Start the frontend development server |
 | `npm --prefix frontend run build` | Build the frontend for production |
 | `npm --prefix backend run dev` | Start the API in watch mode |
+| `npm --prefix backend run lint` | Lint backend TypeScript |
+| `npm --prefix backend run typecheck` | Type-check the backend |
 | `npm --prefix backend test` | Run backend tests |
 
 ## Contribution rules
