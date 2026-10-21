@@ -42,4 +42,10 @@ export const provisionalEngine: Engine = {
       log: state.log,
     };
   },
+
+  createDie: (_seed, position) => ({ die: () => 6, position: () => position }),
+
+  applyAction: () => {
+    throw new Error('The provisional engine cannot apply actions');
+  },
 };

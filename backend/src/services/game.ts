@@ -54,7 +54,17 @@ export type Game = {
   log: LogEntry[];
 };
 
+export type Action =
+  | { type: 'move'; roomId: string }
+  | { type: 'search' }
+  | { type: 'interrogate'; suspectId: string; clueId?: string }
+  | { type: 'accuse'; suspectId: string; evidence: string[] };
+
+export type Die = () => number;
+
 export type Engine = {
   createState(seed: number): GameState;
   buildView(state: GameState): Game;
+  createDie(seed: number, position: number): { die: Die; position: () => number };
+  applyAction(state: GameState, action: Action, die: Die): { state: GameState; event: GameEvent };
 };

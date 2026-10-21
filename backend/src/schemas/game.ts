@@ -90,3 +90,17 @@ export const gameSchema = {
     },
   },
 } as const;
+
+export function actionBody(properties: Record<string, object> = {}, required: string[] = []) {
+  return {
+    type: 'object',
+    required: ['version', ...required],
+    properties: { version: { type: 'integer', minimum: 0 }, ...properties },
+  } as const;
+}
+
+export const actionResponse = {
+  type: 'object',
+  required: ['event', 'game'],
+  properties: { event: eventSchema, game: gameSchema },
+} as const;
