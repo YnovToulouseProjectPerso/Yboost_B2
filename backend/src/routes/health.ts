@@ -5,6 +5,8 @@ const healthRoutes: FastifyPluginAsync = async (app) => {
     '/health',
     {
       schema: {
+        tags: ['health'],
+        summary: 'Vérifier que l’API répond',
         response: {
           200: {
             type: 'object',

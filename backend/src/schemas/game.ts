@@ -16,12 +16,14 @@ const eventType = {
 const result = { type: ['string', 'null'] } as const;
 
 export const eventSchema = {
+  $id: 'Event',
   type: 'object',
   required: ['type', 'result', 'text'],
   properties: { type: eventType, result, text: string, obtainedClues: strings, obtainedItems: strings },
 } as const;
 
 export const gameSchema = {
+  $id: 'Game',
   type: 'object',
   required: [
     'gameId',
@@ -78,7 +80,7 @@ export const gameSchema = {
       type: 'array',
       items: { type: 'object', required: ['id', 'name'], properties: { id: string, name: string } },
     },
-    lastEvent: eventSchema,
+    lastEvent: { $ref: 'Event#' },
     suspects: { type: 'array', items: suspect },
     log: {
       type: 'array',
@@ -99,8 +101,32 @@ export function actionBody(properties: Record<string, object> = {}, required: st
   } as const;
 }
 
-export const actionResponse = {
+export const actionResultSchema = {
+  $id: 'ActionResult',
   type: 'object',
   required: ['event', 'game'],
-  properties: { event: eventSchema, game: gameSchema },
+  properties: { event: { $ref: 'Event#' }, game: { $ref: 'Game#' } },
+} as const;
+
+export const errorSchema = {
+  $id: 'Error',
+  type: 'object',
+  required: ['error'],
+  properties: {
+    error: { type: 'object', required: ['code', 'message'], properties: { code: string, message: string } },
+    game: { $ref: 'Game#' },
+  },
+} as const;
+
+export const sharedSchemas = [eventSchema, gameSchema, actionResultSchema, errorSchema];
+
+export const gameResponse = { $ref: 'Game#' } as const;
+
+export const errorResponse = { $ref: 'Error#' } as const;
+
+export const actionResponses = {
+  200: { $ref: 'ActionResult#' },
+  400: errorResponse,
+  404: errorResponse,
+  409: errorResponse,
 } as const;

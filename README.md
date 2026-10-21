@@ -35,6 +35,8 @@ npm --prefix frontend run dev
 
 The frontend runs at <http://localhost:5173>. The API health endpoint is
 <http://localhost:3000/api/health>.
+The interactive API documentation (Swagger UI) is at
+<http://localhost:3000/documentation>.
 
 Games are kept in memory by a single server process. Restarting the backend
 erases every game in progress.

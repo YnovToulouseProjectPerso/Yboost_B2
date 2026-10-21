@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, test } from 'vitest';
 import { buildApp } from '../src/app.ts';
-import { actionBody, actionResponse } from '../src/schemas/game.ts';
+import { actionBody, actionResponses } from '../src/schemas/game.ts';
 import { DomainError } from '../src/services/domain-error.ts';
 import type { Engine } from '../src/services/game.ts';
 import type { GameStore } from '../src/services/game-store.ts';
@@ -48,7 +48,7 @@ describe('running an action', () => {
     app = buildApp({ logger: false, engine: fakeEngine, games });
     app.post<{ Params: { gameId: string }; Body: { version: number; roomId: string } }>(
       '/api/games/:gameId/test',
-      { schema: { body: actionBody({ roomId: { type: 'string' } }, ['roomId']), response: { 200: actionResponse } } },
+      { schema: { body: actionBody({ roomId: { type: 'string' } }, ['roomId']), response: actionResponses } },
       async (request) =>
         runAction(fakeEngine, games, request.params.gameId, request.body.version, {
           type: 'move',

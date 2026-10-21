@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto';
 import type { FastifyPluginAsync } from 'fastify';
-import { gameSchema } from '../schemas/game.ts';
+import { errorResponse, gameResponse } from '../schemas/game.ts';
 import type { Engine } from '../services/game.ts';
 import { findState, type GameStore } from '../services/game-store.ts';
 
@@ -15,8 +15,10 @@ const gameRoutes: FastifyPluginAsync<{ engine: Engine; games: GameStore }> = asy
     '/games',
     {
       schema: {
+        tags: ['games'],
+        summary: 'Créer une partie',
         body: { type: 'object', properties: { seed: { type: 'integer', minimum: 1 } } },
-        response: { 201: gameSchema },
+        response: { 201: gameResponse, 400: errorResponse },
       },
       preValidation: async (request) => {
         request.body ??= {};
@@ -31,7 +33,14 @@ const gameRoutes: FastifyPluginAsync<{ engine: Engine; games: GameStore }> = asy
 
   app.get<{ Params: { gameId: string } }>(
     '/games/:gameId',
-    { schema: { params: gameIdParams, response: { 200: gameSchema } } },
+    {
+      schema: {
+        tags: ['games'],
+        summary: 'Lire une partie',
+        params: gameIdParams,
+        response: { 200: gameResponse, 404: errorResponse },
+      },
+    },
     async (request) => engine.buildView(findState(games, request.params.gameId)),
   );
 };
