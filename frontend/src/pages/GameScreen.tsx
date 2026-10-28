@@ -1,6 +1,8 @@
+import type { ScreenProps } from '../hooks/useGame.ts';
+
 const focusTitle = (title: HTMLHeadingElement | null) => title?.focus();
 
-export default function GameScreen() {
+export default function GameScreen(_props: ScreenProps) {
   return (
     <section aria-labelledby="game-title">
       <h1

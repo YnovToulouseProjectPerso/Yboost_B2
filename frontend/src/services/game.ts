@@ -45,3 +45,13 @@ export type Game = {
   suspects: Suspect[];
   log: LogEntry[];
 };
+
+export type ActionResult = { event: GameEvent; game: Game };
+
+export type Summary = {
+  culprit: { id: string; name: string };
+  motive: string;
+  timeline: { time: string; text: string }[];
+  possibleEvidence: { id: string; title: string; obtained: boolean }[];
+  accusation: { suspectId: string; evidence: string[]; correct: boolean };
+};
