@@ -69,7 +69,7 @@ describe('applyAction', () => {
       result: null,
       text: 'Vous avancez.',
     });
-    expect(result.event).toBe(movementEvent);
+    expect(result.event).toEqual(movementEvent);
     expect(state).toEqual(before);
   });
 
@@ -138,5 +138,80 @@ describe('applyAction', () => {
     expect(result.state.version).toBe(state.version + 1);
     expect(result.state.status).toBe('victory');
     expect(result.state.log).toHaveLength(state.log.length + 1);
+  });
+});
+
+describe('applyAction with the game status and time (#26)', () => {
+  // Sample definition: two rooms linked together
+  const rooms: Record<string, string> = { hall: 'office', office: 'hall' };
+  // Rigged die
+  const die = () => 6;
+
+  function registerMoveRule(): void {
+    actionRules.move = (state, action) => {
+      if (action.type !== 'move' || rooms[state.currentRoom] !== action.roomId) {
+        throw new DomainError('ROOM_NOT_ADJACENT', 'Cette pièce n’est pas accessible d’ici.');
+      }
+      state.currentRoom = action.roomId;
+      return { state, event: { ...movementEvent } };
+    };
+  }
+
+  function playMoves(state: GameState, count: number): { state: GameState; event: GameEvent } {
+    let result = { state, event: movementEvent };
+    for (let i = 0; i < count; i++) {
+      result = applyAction(result.state, { type: 'move', roomId: rooms[result.state.currentRoom] }, die);
+    }
+    return result;
+  }
+
+  test('starts dawn after 12 accepted actions', () => {
+    registerMoveRule();
+
+    const { state, event } = playMoves(createState({ version: 0, remainingActions: 12 }), 12);
+
+    expect(state.remainingActions).toBe(0);
+    expect(state.status).toBe('dawn');
+    expect(state.version).toBe(12);
+    expect(event.text).toContain('L\'aube pointe');
+    expect(state.log.at(-1)?.text).toBe(event.text);
+  });
+
+  test('refuses a 13th action other than an accusation at dawn (INV-02)', () => {
+    registerMoveRule();
+    const { state } = playMoves(createState({ version: 0, remainingActions: 12 }), 12);
+    const before = structuredClone(state);
+
+    expect(() => applyAction(state, { type: 'move', roomId: rooms[state.currentRoom] }, die)).toThrow(
+      expect.objectContaining({ code: 'DAWN_ACCUSATION_ONLY' }),
+    );
+    expect(state).toEqual(before);
+  });
+
+  test('accepts an accusation at dawn without consuming an action (INV-03)', () => {
+    actionRules.accuse = (state) => ({
+      state: { ...state, status: 'defeat' },
+      event: { type: 'accusation', result: 'defeat', text: 'Accusation rejetée.' },
+    });
+    const state = createState({ status: 'dawn', remainingActions: 0 });
+
+    const result = applyAction(state, accuse, die);
+
+    expect(result.state.remainingActions).toBe(0);
+    expect(result.state.version).toBe(state.version + 1);
+    expect(result.state.status).toBe('defeat');
+    expect(result.event.text).not.toContain('L\'aube pointe');
+  });
+
+  test.each(['victory', 'defeat'] as const)('refuses every action once the game is over: %s (INV-09)', (status) => {
+    registerMoveRule();
+    actionRules.accuse = (state) => ({ state, event: { type: 'accusation', result: 'victory', text: '' } });
+    const state = createState({ status });
+    const before = structuredClone(state);
+
+    for (const action of [move, accuse]) {
+      expect(() => applyAction(state, action, die)).toThrow(expect.objectContaining({ code: 'GAME_OVER' }));
+    }
+    expect(state).toEqual(before);
   });
 });
