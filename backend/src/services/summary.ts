@@ -13,7 +13,7 @@ export type Summary = {
   motive: string;
   timeline: { time: string; text: string }[];
   possibleEvidence: { id: string; title: string; obtained: boolean }[];
-  accusation: { suspectId: string; evidence: string[]; correct: boolean } | null;
+  accusation: { suspectId: string; evidence: string[]; correct: boolean };
 };
 
 // Reveal the solution once the game is over. Read only: nothing is modified.
@@ -29,6 +29,12 @@ export function buildSummary(definition: SummaryDefinition, state: GameState): S
     throw new Error(`Unknown culprit "${culprit}" in the scenario.`);
   }
 
+  // Only an accusation ends a game, so a finished game without one is an engine bug
+  const { accusation } = state;
+  if (!accusation) {
+    throw new Error(`Game "${state.gameId}" is over without an accusation.`);
+  }
+
   return {
     culprit: { id: suspect.id, name: suspect.name },
     motive,
@@ -36,10 +42,6 @@ export function buildSummary(definition: SummaryDefinition, state: GameState): S
     possibleEvidence: definition.clues
       .filter((clue) => clue.evidenceAgainst === culprit)
       .map(({ id, title }) => ({ id, title, obtained: state.notebook.includes(id) })),
-    accusation: state.accusation && {
-      suspectId: state.accusation.suspectId,
-      evidence: [...state.accusation.evidence],
-      correct: state.accusation.correct,
-    },
+    accusation: { suspectId: accusation.suspectId, evidence: [...accusation.evidence], correct: accusation.correct },
   };
 }
