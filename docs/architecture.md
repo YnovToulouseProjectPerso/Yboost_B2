@@ -101,6 +101,14 @@ The backend lives in [`backend/`](../backend/) and uses Node.js with Fastify, in
 Keep route handlers focused on HTTP concerns. Put reusable business logic in
 services and validate external input at the API boundary.
 
+### Reproducible randomness
+
+Game rules receive a die from the engine and never call `Math.random()`.
+`backend/src/services/die.ts` creates a seeded d6 from the game's `seed` and
+`dieState`; its position can be saved back to `dieState` and passed in again
+to resume the same sequence. `Math.random()` is reserved for generating a
+seed when one is not supplied.
+
 ### Database
 
 [`database/`](../database/) is reserved for schema migrations and seed data.
