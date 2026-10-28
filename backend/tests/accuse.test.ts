@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
-import { accuse, type AccuseDefinition } from '../src/engine/accuse.ts';
+import { accuse, type AccuseDefinition } from '../src/services/accuse.ts';
 import { DomainError } from '../src/services/domain-error.ts';
 import type { GameState } from '../src/services/game.ts';
 

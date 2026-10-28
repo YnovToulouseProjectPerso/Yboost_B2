@@ -1,5 +1,5 @@
-import { DomainError } from '../services/domain-error.ts';
-import type { Action, Die, GameEvent, GameState } from '../services/game.ts';
+import { DomainError } from './domain-error.ts';
+import type { Action, Die, GameEvent, GameState } from './game.ts';
 
 // Parts of the scenario definition needed by the accusation
 export type AccuseDefinition = {
