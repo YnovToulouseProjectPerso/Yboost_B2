@@ -7,6 +7,7 @@ guidance without having to search one large document.
 
 | Document | Contents |
 | --- | --- |
+| [API contract](./04-api-contract.md) | Player-facing game response fields and privacy boundaries |
 | [Architecture](./architecture.md) | Application boundaries, request flow, and responsibilities |
 | [Development setup](./development-setup.md) | Prerequisites, environment variables, and local commands |
 | [Coding standards](./coding-standards.md) | Frontend, backend, and general implementation practices |

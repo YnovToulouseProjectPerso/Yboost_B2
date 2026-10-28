@@ -109,6 +109,12 @@ Game rules receive a die from the engine and never call `Math.random()`.
 to resume the same sequence. `Math.random()` is reserved for generating a
 seed when one is not supplied.
 
+`backend/src/services/game-factory.ts` contains the scenario-driven
+`createState(definition, seed)` and `buildView(definition, state)` functions.
+The player view is intentionally whitelisted and follows the
+[Game API contract](./04-api-contract.md); routes and engine wiring remain
+separate.
+
 ### Database
 
 [`database/`](../database/) is reserved for schema migrations and seed data.
