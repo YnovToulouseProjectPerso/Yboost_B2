@@ -106,6 +106,13 @@ describe('buildSummary', () => {
     }
   });
 
+  it('treats a finished game without an accusation as an engine bug, not a refusal', () => {
+    const state = createState({ status: 'defeat', accusation: null });
+
+    expect(() => buildSummary(definition, state)).toThrow('over without an accusation');
+    expect(() => buildSummary(definition, state)).not.toThrow(DomainError);
+  });
+
   it('modifies neither the definition nor the state', () => {
     const state = createState();
     const definitionBefore = structuredClone(definition);
@@ -113,7 +120,7 @@ describe('buildSummary', () => {
 
     const summary = buildSummary(definition, state);
     summary.timeline.push({ time: '2h00', text: 'Ajout' });
-    summary.accusation?.evidence.push('i3');
+    summary.accusation.evidence.push('i3');
 
     expect(definition).toEqual(definitionBefore);
     expect(state).toEqual(stateBefore);
