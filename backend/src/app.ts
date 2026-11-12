@@ -2,6 +2,7 @@ import Fastify from 'fastify';
 import corsPlugin from './plugins/cors.ts';
 import { setDocs } from './plugins/docs.ts';
 import { setErrorHandling } from './plugins/error-handler.ts';
+import accusationRoutes from './routes/accusation.ts';
 import gameRoutes from './routes/games.ts';
 import healthRoutes from './routes/health.ts';
 import type { Engine } from './services/game.ts';
@@ -28,6 +29,7 @@ export function buildApp({
   app.register(corsPlugin, { origin: frontendOrigin });
   app.register(healthRoutes, { prefix: '/api' });
   app.register(gameRoutes, { prefix: '/api', engine, games });
+  app.register(accusationRoutes, { prefix: '/api', engine, games });
 
   return app;
 }
