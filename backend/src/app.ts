@@ -5,6 +5,7 @@ import { setErrorHandling } from './plugins/error-handler.ts';
 import accusationRoutes from './routes/accusation.ts';
 import gameRoutes from './routes/games.ts';
 import healthRoutes from './routes/health.ts';
+import moveRoutes from './routes/move.ts';
 import type { Engine } from './services/game.ts';
 import type { GameStore } from './services/game-store.ts';
 import { provisionalEngine } from './services/provisional-engine.ts';
@@ -29,6 +30,7 @@ export function buildApp({
   app.register(corsPlugin, { origin: frontendOrigin });
   app.register(healthRoutes, { prefix: '/api' });
   app.register(gameRoutes, { prefix: '/api', engine, games });
+  app.register(moveRoutes, { prefix: '/api', engine, games });
   app.register(accusationRoutes, { prefix: '/api', engine, games });
 
   return app;

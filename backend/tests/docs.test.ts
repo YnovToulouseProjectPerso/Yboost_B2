@@ -6,9 +6,10 @@ test('the OpenAPI specification lists the game routes with shared schemas', asyn
 
   const { paths, components } = (await app.inject({ method: 'GET', url: '/documentation/json' })).json();
 
-  expect(Object.keys(paths)).toEqual(expect.arrayContaining(['/api/games', '/api/games/{gameId}']));
+  expect(Object.keys(paths)).toEqual(expect.arrayContaining(['/api/games', '/api/games/{gameId}', '/api/games/{gameId}/move']));
   expect(Object.keys(paths['/api/games'].post.responses)).toEqual(['201', '400']);
   expect(Object.keys(paths['/api/games/{gameId}'].get.responses)).toEqual(['200', '404']);
+  expect(Object.keys(paths['/api/games/{gameId}/move'].post.responses)).toEqual(['200', '400', '404', '409']);
   expect(Object.keys(components.schemas)).toEqual(expect.arrayContaining(['Game', 'Event', 'ActionResult', 'Error']));
 });
 
