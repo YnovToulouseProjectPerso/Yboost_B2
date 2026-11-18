@@ -50,3 +50,20 @@ export const atDawn = demoGame(
 );
 
 export const nowhereToGo = demoGame({ id: 'hall', name: 'Salle commune' }, []);
+
+// Logs shaped like the server's: it always opens them with the introduction (version 0)
+const introduction: Game['log'][number] = { version: 0, type: 'introduction', result: null, text: '1h00. Un cri traverse l’auberge…' };
+
+export const logAtStart: Game['log'] = [introduction];
+
+export const logAfterThreeActions: Game['log'] = [
+  introduction,
+  { version: 1, type: 'movement', result: 'success', text: 'Cuisine. Une cuisine encore tiède, odeur de vin épicé.' },
+  { version: 2, type: 'movement', result: 'success', text: 'Salle commune. Le feu crépite encore dans la cheminée.' },
+  {
+    version: 3,
+    type: 'accusation',
+    result: 'defeat',
+    text: 'Votre accusation ne tient pas. Le véritable coupable s’échappe dans la nuit.',
+  },
+];
