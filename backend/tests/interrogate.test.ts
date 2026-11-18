@@ -12,10 +12,15 @@ import {
 // Fictional example definition (format of docs/05, never the real scenario):
 // s1 and s3 are in room a, s2 in room b. s1 gives a base statement, s2 one with an item, s3 has none.
 const definition: InterrogateDefinition = {
+  rooms: [
+    { id: 'a', suspects: ['s1', 's3'] },
+    { id: 'b', suspects: ['s2'] },
+    { id: 'c', suspects: [] },
+  ],
   suspects: [
-    { id: 's1', name: 'Suspect Un', roomId: 'a' },
-    { id: 's2', name: 'Suspect Deux', roomId: 'b' },
-    { id: 's3', name: 'Suspect Trois', roomId: 'a' },
+    { id: 's1', name: 'Suspect Un' },
+    { id: 's2', name: 'Suspect Deux' },
+    { id: 's3', name: 'Suspect Trois' },
   ],
   clues: [
     { id: 'i_a1', text: 'Indice A1.', source: 'search', givenItem: null },
@@ -159,6 +164,10 @@ describe('interrogate refusals (#38)', () => {
 
   it('refuses a suspect from another room', () => {
     expectRefusal(createState(), action('s2'), 'SUSPECT_ABSENT');
+  });
+
+  it('refuses any suspect in a room without suspects', () => {
+    expectRefusal(createState({ currentRoom: 'c' }), action('s1'), 'SUSPECT_ABSENT');
   });
 
   it('names the absent suspect in the message', () => {

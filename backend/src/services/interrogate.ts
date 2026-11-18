@@ -3,7 +3,9 @@ import type { Action, Die, GameEvent, GameState } from './game.ts';
 
 // Parts of the scenario definition needed by the interrogation (docs/05)
 export type InterrogateDefinition = {
-  suspects: { id: string; name: string; roomId: string }[];
+  // Presence is read from rooms[].suspects, like the player view (buildView), so both always agree
+  rooms: { id: string; suspects: string[] }[];
+  suspects: { id: string; name: string }[];
   // Testimonies are clues whose source is "interrogation"
   clues: { id: string; text: string; source: 'search' | 'interrogation'; givenItem?: string | null }[];
   // presentedClue null = base statement (US-06, #38); a clue id = showing a clue (US-07, #40)
@@ -34,7 +36,8 @@ export function interrogate(
     throw new DomainError('UNKNOWN_SUSPECT', 'Ce suspect n’existe pas.');
   }
 
-  if (suspect.roomId !== state.currentRoom) {
+  const room = definition.rooms.find((candidate) => candidate.id === state.currentRoom);
+  if (!room?.suspects.includes(suspect.id)) {
     throw new DomainError('SUSPECT_ABSENT', `${suspect.name} n’est pas dans cette pièce.`);
   }
 
