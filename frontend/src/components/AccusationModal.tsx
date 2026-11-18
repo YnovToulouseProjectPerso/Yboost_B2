@@ -7,12 +7,14 @@ type Props = {
   loading: boolean;
   actions: GameActions;
   onClose: () => void;
+  // Refusal message from the server (e.g. 409): shown inside the modal, which stays open
+  error?: string | null;
 };
 
 const EVIDENCE_COUNT = 2;
 
 // The interface only prevents obviously invalid input: the server decides the outcome
-export default function AccusationModal({ game, loading, actions, onClose }: Props) {
+export default function AccusationModal({ game, loading, actions, onClose, error = null }: Props) {
   const [suspectId, setSuspectId] = useState<string | null>(null);
   const [evidence, setEvidence] = useState<string[]>([]);
   const dialogRef = useRef<HTMLDivElement>(null);
@@ -108,6 +110,12 @@ export default function AccusationModal({ game, loading, actions, onClose }: Pro
             </>
           )}
         </fieldset>
+
+        {error && (
+          <p role="alert" className="mt-8 border border-oxblood px-5 py-4">
+            {error}
+          </p>
+        )}
 
         <div className="mt-10 flex flex-wrap gap-4">
           <button
