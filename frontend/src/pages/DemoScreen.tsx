@@ -1,10 +1,11 @@
 import { useState } from 'react';
+import ActionLog from '../components/ActionLog.tsx';
 import InnMap from '../components/InnMap.tsx';
 import MoveList from '../components/MoveList.tsx';
 import type { GameActions } from '../hooks/useGame.ts';
 import type { Game } from '../services/game.ts';
 import DawnDemo from './DawnDemo.tsx';
-import { atDawn, beforeLockedDoor, inHall, nowhereToGo } from './demo-games.ts';
+import { atDawn, beforeLockedDoor, inHall, logAfterThreeActions, logAtStart, nowhereToGo } from './demo-games.ts';
 
 const cases: { title: string; game: Game; loading: boolean }[] = [
   { title: 'Partie neuve, salle commune', game: inHall, loading: false },
@@ -12,6 +13,11 @@ const cases: { title: string; game: Game; loading: boolean }[] = [
   { title: 'Requête en cours', game: inHall, loading: true },
   { title: 'À l’aube', game: atDawn, loading: false },
   { title: 'Aucune pièce adjacente', game: nowhereToGo, loading: false },
+];
+
+const logCases: { title: string; log: Game['log'] }[] = [
+  { title: 'Début de partie', log: logAtStart },
+  { title: 'Après trois actions', log: logAfterThreeActions },
 ];
 
 const ignore = () => {};
@@ -48,6 +54,16 @@ export default function DemoScreen() {
 
         <h2 className="mt-20 text-4xl leading-tight italic sm:text-5xl">Démo : aube et règle d’activation</h2>
         <DawnDemo />
+
+        <h2 className="mt-20 text-4xl leading-tight italic sm:text-5xl">Démo : historique des actions</h2>
+        {logCases.map(({ title, log }) => (
+          <section key={title} aria-label={title} className="mt-12 border-t border-rule pt-8">
+            <p className="text-2xl italic">{title}</p>
+            <div className="mt-6">
+              <ActionLog game={{ log }} />
+            </div>
+          </section>
+        ))}
       </main>
     </div>
   );

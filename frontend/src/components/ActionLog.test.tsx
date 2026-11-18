@@ -1,5 +1,6 @@
 import { render, screen, within } from '@testing-library/react';
 import { expect, test } from 'vitest';
+import { logAfterThreeActions, logAtStart } from '../pages/demo-games.ts';
 import type { LogEntry } from '../services/game.ts';
 import ActionLog from './ActionLog.tsx';
 
@@ -45,4 +46,22 @@ test('is a collapsible section whose title is a native summary, usable with the 
   expect(details).not.toBeNull();
   expect(details).not.toHaveAttribute('open');
   expect(details?.querySelector('summary')).toHaveTextContent('Historique (3 actions)');
+});
+
+test('does not count the introduction the server puts first: a new game has no action yet', () => {
+  render(<ActionLog game={{ log: logAtStart }} />);
+
+  expect(screen.getByText('Historique (0 action)')).toBeInTheDocument();
+  expect(screen.getByText('Aucune action pour l’instant.')).toBeInTheDocument();
+  expect(screen.queryByText(/Début de l’enquête/)).not.toBeInTheDocument();
+});
+
+test('lists only the player actions of a server log, from version 1', () => {
+  render(<ActionLog game={{ log: logAfterThreeActions }} />);
+
+  expect(screen.getByText('Historique (3 actions)')).toBeInTheDocument();
+  const items = screen.getAllByRole('listitem');
+  expect(items).toHaveLength(3);
+  expect(items[0]).toHaveTextContent('1.Déplacement');
+  expect(items[2]).toHaveTextContent('3.Accusation — défaite');
 });

@@ -25,7 +25,9 @@ const resultLabels: Record<string, string> = {
 
 // History of the accepted actions, shown exactly as the server sends it: no computation, no "evidence" mark
 export default function ActionLog({ game }: Props) {
-  const count = game.log.length;
+  // The server opens every log with the introduction (version 0): it is not an action of the player
+  const actions = game.log.filter((entry) => entry.type !== 'introduction');
+  const count = actions.length;
 
   return (
     <details className="group border-t border-rule pt-6">
@@ -37,7 +39,7 @@ export default function ActionLog({ game }: Props) {
         <p className="mt-3 text-ink-faded">Aucune action pour l’instant.</p>
       ) : (
         <ol className="mt-4 space-y-3">
-          {game.log.map((entry) => (
+          {actions.map((entry) => (
             <li key={entry.version} className="grid grid-cols-[3ch_1fr] gap-x-3">
               <span className="text-right text-ink-faded tabular-nums">{entry.version}.</span>
               <div>
