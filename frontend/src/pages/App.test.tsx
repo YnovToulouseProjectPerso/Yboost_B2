@@ -56,7 +56,7 @@ test('shows the end screen for a finished game', async () => {
 
   render(<App />);
 
-  expect(await screen.findByRole('heading', { level: 1, name: 'L’aube' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { level: 1, name: 'Victoire' })).toBeInTheDocument();
 });
 
 test('shows the network error with a retry button that resends the request', async () => {
