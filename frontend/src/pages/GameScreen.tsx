@@ -2,11 +2,12 @@ import { useState } from 'react';
 import AccusationModal from '../components/AccusationModal.tsx';
 import ActionLog from '../components/ActionLog.tsx';
 import DawnBanner from '../components/DawnBanner.tsx';
+import ErrorMessage from '../components/ErrorMessage.tsx';
 import type { GameError, ScreenProps } from '../hooks/useGame.ts';
 import { isActionAllowed } from '../services/action-rules.ts';
 
 type Props = ScreenProps & {
-  // Last error of useGame: a refusal received while the accusation modal is open is shown inside it
+  // Last error of useGame, shown by this screen: inside the accusation modal for a refusal received while it is open
   error?: GameError | null;
 };
 
@@ -17,6 +18,8 @@ export default function GameScreen({ game, loading, actions, error = null }: Pro
   // Error already on screen when the modal opened: not a refusal of this accusation
   const [errorAtOpening, setErrorAtOpening] = useState<GameError | null>(null);
   const accusationError = error && error !== errorAtOpening ? error.message : null;
+  // One place per error: in the modal when it shows it, otherwise at the top of the screen
+  const errorInModal = accusing && accusationError !== null;
 
   function openAccusation() {
     setErrorAtOpening(error);
@@ -25,6 +28,8 @@ export default function GameScreen({ game, loading, actions, error = null }: Pro
 
   return (
     <section aria-labelledby="game-title">
+      {error && !errorInModal && <ErrorMessage message={error.message} onRetry={error.retry} />}
+
       {/* Slot "accusation + dawn banner" */}
       <DawnBanner game={game} />
 

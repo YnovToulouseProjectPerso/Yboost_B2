@@ -79,6 +79,16 @@ test('shows a refusal received while the modal is open, inside the modal', () =>
 
   const dialog = screen.getByRole('dialog', { name: 'Accuser' });
   expect(within(dialog).getByRole('alert')).toHaveTextContent('Vous ne possédez pas cet indice dans votre carnet.');
+  expect(screen.getAllByRole('alert')).toHaveLength(1);
+});
+
+test('shows an error at the top of the screen, with its retry button, while the modal is closed', () => {
+  const retry = vi.fn();
+  renderScreen(createGame('in_progress'), { error: { message: 'Le serveur ne répond pas.', retry } });
+
+  expect(screen.getByRole('alert')).toHaveTextContent('Le serveur ne répond pas.');
+  fireEvent.click(screen.getByRole('button', { name: 'Réessayer' }));
+  expect(retry).toHaveBeenCalledTimes(1);
 });
 
 test('does not show inside the modal an error that was already there before opening it', () => {

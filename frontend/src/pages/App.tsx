@@ -20,7 +20,8 @@ export default function App() {
   return (
     <div className="min-h-dvh p-3 sm:p-8">
       <main className="mx-auto min-h-[calc(100dvh-1.5rem)] max-w-6xl border border-rule bg-page px-6 py-10 sm:min-h-[calc(100dvh-4rem)] sm:px-14 sm:py-14">
-        {error && <ErrorMessage message={error.message} onRetry={error.retry} />}
+        {/* During a game, the game screen shows the error itself, inside the accusation modal when it is open */}
+        {error && !(game && !isOver) && <ErrorMessage message={error.message} onRetry={error.retry} />}
         {!game && <HomeScreen loading={loading} onNewGame={actions.newGame} />}
         {game && !isOver && <GameScreen game={game} loading={loading} actions={actions} error={error} />}
         {game && isOver && (

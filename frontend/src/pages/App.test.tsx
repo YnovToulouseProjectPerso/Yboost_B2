@@ -133,6 +133,7 @@ test('keeps the accusation modal open with the message of a refusal', async () =
   fireEvent.click(within(dialog).getByRole('button', { name: 'Accuser' }));
 
   expect(await within(dialog).findByRole('alert')).toHaveTextContent('Vous ne possédez pas cet indice dans votre carnet.');
+  expect(screen.getAllByRole('alert')).toHaveLength(1);
   expect(screen.getByRole('dialog', { name: 'Accuser' })).toBeInTheDocument();
   expect(screen.getByRole('heading', { level: 1, name: 'L’enquête' })).toBeInTheDocument();
 });
