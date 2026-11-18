@@ -5,7 +5,7 @@ import GameScreen from './GameScreen.tsx';
 import HomeScreen from './HomeScreen.tsx';
 
 export default function App() {
-  const { game, loading, error, actions } = useGame();
+  const { game, summary, loading, error, actions } = useGame();
   const isOver = game?.status === 'victory' || game?.status === 'defeat';
 
   return (
@@ -14,7 +14,16 @@ export default function App() {
         {error && <ErrorMessage message={error.message} onRetry={error.retry} />}
         {!game && <HomeScreen loading={loading} onNewGame={actions.newGame} />}
         {game && !isOver && <GameScreen game={game} loading={loading} actions={actions} />}
-        {game && isOver && <EndScreen game={game} loading={loading} actions={actions} />}
+        {game && isOver && (
+          <EndScreen
+            game={game}
+            summary={summary}
+            loading={loading}
+            error={null}
+            onReplay={() => actions.newGame()}
+            onReplaySameGame={actions.newGame}
+          />
+        )}
       </main>
     </div>
   );
