@@ -42,11 +42,43 @@ export function interrogate(
   }
 
   if (clueId !== undefined) {
-    // Branch added by #40: showing a clue from the notebook
-    throw new DomainError('INVALID_REQUEST', 'Présenter un indice n’est pas encore possible.');
+    return askWithClue(definition, state, suspect, clueId);
   }
 
   return askWithoutClue(definition, state, suspect);
+}
+
+// Showing a clue from the notebook (#40): a planned combination reveals a testimony, any other one has no effect
+function askWithClue(
+  definition: InterrogateDefinition,
+  state: GameState,
+  suspect: Suspect,
+  clueId: string,
+): { state: GameState; event: GameEvent } {
+  if (!state.notebook.includes(clueId)) {
+    throw new DomainError('CLUE_NOT_OWNED', 'Vous ne possédez pas cet indice dans votre carnet.');
+  }
+
+  // CON-07: at most one line per suspect and clue
+  const line = definition.interrogations.find(
+    (candidate) => candidate.suspectId === suspect.id && candidate.presentedClue === clueId,
+  );
+  const key = interrogationKey(suspect.id, clueId);
+
+  // Combination not planned: a game failure that still uses the action, and that can be asked again
+  if (!line) {
+    const newState = structuredClone(state);
+    if (!newState.interrogationsDone.includes(key)) {
+      newState.interrogationsDone.push(key);
+    }
+    return {
+      state: newState,
+      event: { type: 'interrogation', result: 'no_effect', text: 'Je ne vois pas le rapport.' },
+    };
+  }
+
+  // Refused with ALREADY_OBTAINED, even when the testimony came from another clue
+  return reveal(definition, state, line.reveals, key);
 }
 
 // Base statement (#38): obtained once, refused for free the next time
@@ -70,7 +102,7 @@ function askWithoutClue(
   return reveal(definition, state, line.reveals, interrogationKey(suspect.id));
 }
 
-// Add a testimony to the notebook, with its item if any. Shared with the clue branch of #40.
+// Add a testimony to the notebook, with its item if any. Shared by both branches.
 function reveal(
   definition: InterrogateDefinition,
   state: GameState,

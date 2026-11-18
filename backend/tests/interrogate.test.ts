@@ -63,11 +63,16 @@ function action(suspectId: string, clueId?: string): InterrogateAction {
 }
 
 // Check that the rule refuses with the given code and leaves the state untouched (INV-02)
-function expectRefusal(state: GameState, interrogation: InterrogateAction, code: string): void {
+function expectRefusal(
+  state: GameState,
+  interrogation: InterrogateAction,
+  code: string,
+  scenario: InterrogateDefinition = definition,
+): void {
   const before = structuredClone(state);
 
   try {
-    interrogate(definition, state, interrogation, die);
+    interrogate(scenario, state, interrogation, die);
     throw new Error('Expected a DomainError');
   } catch (error) {
     expect(error).toBeInstanceOf(DomainError);
@@ -181,10 +186,6 @@ describe('interrogate refusals (#38)', () => {
   it('checks the suspect before the room', () => {
     expectRefusal(createState({ currentRoom: 'b' }), action('s_unknown'), 'UNKNOWN_SUSPECT');
   });
-
-  it('refuses to show a clue until #40', () => {
-    expectRefusal(createState({ currentRoom: 'b', notebook: ['i_a1'] }), action('s2', 'i_a1'), 'INVALID_REQUEST');
-  });
 });
 
 describe('interrogate with a broken scenario', () => {
@@ -195,5 +196,135 @@ describe('interrogate with a broken scenario', () => {
     };
 
     expect(() => interrogate(broken, createState(), action('s1'), die)).toThrow(/source « interrogation »/);
+  });
+});
+
+// Fictional combinations of #40 (never the real scenario): s1 and s2 are in room a.
+// s1 + i1 -> t_a ; s1 + i2 -> t_b (gives key_c) ; s2 + i1 -> t_c ; s2 + i3 -> t_c
+const clueDefinition: InterrogateDefinition = {
+  rooms: [
+    { id: 'a', suspects: ['s1', 's2'] },
+    { id: 'b', suspects: [] },
+  ],
+  suspects: [
+    { id: 's1', name: 'Suspect Un' },
+    { id: 's2', name: 'Suspect Deux' },
+  ],
+  clues: [
+    { id: 'i1', text: 'Indice 1.', source: 'search', givenItem: null },
+    { id: 'i2', text: 'Indice 2.', source: 'search', givenItem: null },
+    { id: 'i3', text: 'Indice 3.', source: 'search', givenItem: null },
+    { id: 't_a', text: 'Révélation A.', source: 'interrogation', givenItem: null },
+    { id: 't_b', text: 'Révélation B.', source: 'interrogation', givenItem: 'key_c' },
+    { id: 't_c', text: 'Révélation C.', source: 'interrogation', givenItem: null },
+  ],
+  interrogations: [
+    { suspectId: 's1', presentedClue: 'i1', reveals: 't_a' },
+    { suspectId: 's1', presentedClue: 'i2', reveals: 't_b' },
+    { suspectId: 's2', presentedClue: 'i1', reveals: 't_c' },
+    { suspectId: 's2', presentedClue: 'i3', reveals: 't_c' },
+  ],
+};
+
+function showClue(state: GameState, suspectId: string, clueId: string) {
+  return interrogate(clueDefinition, state, action(suspectId, clueId), die);
+}
+
+describe('interrogate with a clue (#40)', () => {
+  it('reveals the planned testimony and adds it to the notebook', () => {
+    const result = showClue(createState({ notebook: ['i1'] }), 's1', 'i1');
+
+    expect(result.event).toEqual({
+      type: 'interrogation',
+      result: 'revelation',
+      text: 'Révélation A.',
+      obtainedClues: ['t_a'],
+      obtainedItems: [],
+    });
+    expect(result.state.notebook).toEqual(['i1', 't_a']);
+    expect(result.state.obtainedRevelations).toEqual(['t_a']);
+    expect(result.state.interrogationsDone).toEqual(['s1:i1']);
+  });
+
+  it('uses the combination of the suspect asked: the same clue reveals something else to another suspect', () => {
+    const result = showClue(createState({ notebook: ['i1'] }), 's2', 'i1');
+
+    expect(result.event.obtainedClues).toEqual(['t_c']);
+  });
+
+  it('gives the item of the revealed testimony', () => {
+    const result = showClue(createState({ notebook: ['i2'] }), 's1', 'i2');
+
+    expect(result.state.items).toEqual(['key_c']);
+    expect(result.event.obtainedItems).toEqual(['key_c']);
+  });
+
+  it('never duplicates an item already owned, for instance a key found by searching', () => {
+    const result = showClue(createState({ notebook: ['i2'], items: ['key_c'] }), 's1', 'i2');
+
+    expect(result.state.items).toEqual(['key_c']);
+    expect(result.event.obtainedItems).toEqual([]);
+  });
+
+  it('ends with no effect for a combination that is not planned, the notebook unchanged', () => {
+    const state = createState({ notebook: ['i3'] });
+
+    const result = showClue(state, 's1', 'i3');
+
+    expect(result.event).toEqual({ type: 'interrogation', result: 'no_effect', text: 'Je ne vois pas le rapport.' });
+    expect(result.state).toEqual({ ...state, interrogationsDone: ['s1:i3'] });
+  });
+
+  it('can ask a combination with no effect again: still no effect, recorded once', () => {
+    const first = showClue(createState({ notebook: ['i3'] }), 's1', 'i3');
+
+    const second = showClue(first.state, 's1', 'i3');
+
+    expect(second.event.result).toBe('no_effect');
+    expect(second.state.interrogationsDone).toEqual(['s1:i3']);
+  });
+
+  it('keeps the notebook free of duplicates (INV-05)', () => {
+    const first = showClue(createState({ notebook: ['i1', 'i2'] }), 's1', 'i1');
+    const second = showClue(first.state, 's1', 'i2');
+
+    expect(second.state.notebook).toEqual(['i1', 'i2', 't_a', 't_b']);
+    expect(new Set(second.state.notebook).size).toBe(second.state.notebook.length);
+  });
+
+  it('never changes the received state', () => {
+    const state = createState({ notebook: ['i2'] });
+    const before = structuredClone(state);
+
+    showClue(state, 's1', 'i2');
+
+    expect(state).toEqual(before);
+  });
+});
+
+describe('interrogate with a clue: refusals (#40)', () => {
+  it('refuses a clue that is not in the notebook', () => {
+    expectRefusal(createState({ notebook: ['i2'] }), action('s1', 'i1'), 'CLUE_NOT_OWNED', clueDefinition);
+  });
+
+  it('refuses a combination asked again', () => {
+    const first = showClue(createState({ notebook: ['i1'] }), 's1', 'i1');
+
+    expectRefusal(first.state, action('s1', 'i1'), 'ALREADY_OBTAINED', clueDefinition);
+  });
+
+  it('refuses a revelation already obtained with another clue (s2 + i3 after s2 + i1)', () => {
+    const first = showClue(createState({ notebook: ['i1', 'i3'] }), 's2', 'i1');
+
+    expectRefusal(first.state, action('s2', 'i3'), 'ALREADY_OBTAINED', clueDefinition);
+  });
+
+  it('checks the suspect before the clue: unknown, then absent, then not owned', () => {
+    expectRefusal(createState(), action('s_unknown', 'i_unknown'), 'UNKNOWN_SUSPECT', clueDefinition);
+    expectRefusal(createState({ currentRoom: 'b' }), action('s1', 'i_unknown'), 'SUSPECT_ABSENT', clueDefinition);
+  });
+
+  it('checks the clue before the revelation: an unowned clue is refused even if its revelation is known', () => {
+    expectRefusal(createState({ obtainedRevelations: ['t_a'], notebook: ['t_a'] }), action('s1', 'i1'), 'CLUE_NOT_OWNED', clueDefinition);
   });
 });
