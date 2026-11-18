@@ -3,6 +3,7 @@ import InnMap from '../components/InnMap.tsx';
 import MoveList from '../components/MoveList.tsx';
 import type { GameActions } from '../hooks/useGame.ts';
 import type { Game } from '../services/game.ts';
+import DawnDemo from './DawnDemo.tsx';
 import { atDawn, beforeLockedDoor, inHall, nowhereToGo } from './demo-games.ts';
 
 const cases: { title: string; game: Game; loading: boolean }[] = [
@@ -44,6 +45,9 @@ export default function DemoScreen() {
             </div>
           </section>
         ))}
+
+        <h2 className="mt-20 text-4xl leading-tight italic sm:text-5xl">Démo : aube et règle d’activation</h2>
+        <DawnDemo />
       </main>
     </div>
   );
